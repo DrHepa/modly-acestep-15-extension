@@ -18,7 +18,9 @@ class StorageTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        # Windows runners may expose TEMP through an 8.3 alias (RUNNER~1).
+        # Compare canonical paths, as the storage resolver intentionally returns.
+        self.root = Path(self.temporary.name).resolve()
 
     def test_host_custom_settings_override_saved_root(self):
         ext = self.root / "custom-extensions" / EXTENSION_ID
