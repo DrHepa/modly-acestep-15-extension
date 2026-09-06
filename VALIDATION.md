@@ -125,9 +125,45 @@ controlled model boundary used in the unit tests. Local setup/Repair logs and
 `inference-evidence.json` / `final-runtime-evidence.json` record these results;
 the generated WAV SHA-256 is
 `f84fb60da989884c640acd26cc29bd5a76749163373bb152573ec549b2645c71`.
-**UNTESTED:** listening/audio quality, Modly UI installation/workflow preview
-end-to-end, vocals and planner inference. This evidence does not qualify other
-hardware or Python 3.11 ARM64.
+For this initial 10-second instrumental check, listening/audio quality and Modly
+UI end-to-end behavior were not assessed. The subsequent vocal/planner listening
+acceptance below is separate evidence; neither run qualifies other hardware or
+Python 3.11 ARM64.
+
+### Full-song vocals and planner demo — 2026-09-06
+
+A subsequent real Modly workflow generated the published **Worlds We Make** take
+on the same GB10/Linux ARM64/Python 3.12 runtime. The sanitized
+[generation sidecar](assets/demo/worlds-we-make.json) retains the exact caption,
+lyrics, requested parameters, actual seed/duration and pinned upstream revision.
+
+| Check | Evidence / scope |
+| --- | --- |
+| Recorded generation settings | 120 s; seed **1786369090**; **115 BPM**, A minor, 4/4; English vocal mode; CUDA, CPU offload; planner **On**, temperature **0.85** |
+| Original output | Stereo 48,000 Hz FLOAT WAV; **5,760,000 frames**, **120.0 s**, **46,080,088 bytes** |
+| Vocals / lyric coverage / opening | **USER-VERIFIED by listening:** this take sings the complete supplied song without the earlier approximately 30-second intro |
+| Planner comparison | User reported skipped opening lyrics in planner-Off takes, then complete lyrics after enabling the 1.7B planner; this is sample-specific, not a general alignment benchmark |
+| Public preview | **4,005,621 bytes**; full 120.0 s; H.264 High, yuv420p, 1280×720, 2 fps; AAC-LC stereo 48 kHz, encoded at 256 kb/s; faststart MP4 |
+| Preview integrity | Full FFmpeg audio/video decode completed without errors; cover inspected visually; original WAV SHA-256 unchanged before/after encoding |
+
+Original WAV SHA-256:
+`6d501ce8aedec7efd4587114cce0b1c49eff92f299be411fd00c3319df20fe14`
+
+Published MP4 SHA-256:
+`3e4f247c03d7c1cf88dee89f04a238d29816793edc5b952e6520e746ea013c16`
+
+The MP4 is a **lossy listening preview**, not the float master or a new generation.
+No sections were removed/reordered and no normalization, remixing or gain changes
+were applied. FFmpeg 6.1.1 was extracted from the official public Ubuntu ARM64
+package into a temporary directory for this encode; it was not installed into
+the extension or added as a runtime dependency. The original WAV stays outside
+the repository. The cover is original text/vector-style artwork, not a claim to
+be an official Modly logo.
+
+This evidence updates the earlier “vocals and planner inference untested” status.
+It does **not** establish universal lyric adherence, exact vocal identity, quality
+across seeds, clean GitHub installation, complete UI lifecycle/cancellation,
+absence of generation-time network activity, or another hardware/ABI lane.
 
 ### Cross-platform availability and remaining qualification
 
@@ -140,7 +176,7 @@ PyPI metadata for Python compatibility and platform/pure-Python wheels.
 | --- | --- | --- |
 | Windows x64, Python 3.11 / 3.12 | torch 2.7.1, torchvision 0.22.1, cu128 or CPU | Not executed on a Windows host |
 | Linux x64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu128 or CPU | CPU dependency/kernel/audio checks executed; CUDA not executed |
-| Linux ARM64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu130 or CPU | GB10/Python 3.12 cu130 setup, Repair and real instrumental inference passed; Python 3.11 and CPU runtime untested |
+| Linux ARM64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu130 or CPU | GB10/Python 3.12 cu130 setup, Repair and instrumental inference passed; full-song planner/vocals user-listened; Python 3.11 and CPU runtime untested |
 
 An independent fresh-context review caught the capped ARM64 CUDA report,
 BF16-emulation detection on older GPUs and an unproven storage-path fallback.
@@ -150,23 +186,25 @@ qualification.
 
 ## Required real acceptance before declaring full platform support
 
-The GB10/Python 3.12 run above satisfies setup, native checks, instrumental
-file/protocol generation and intact-weight Repair for that target only. The
-remaining UI, listening, mode and platform checks are not implied by it.
+The GB10/Python 3.12 runs above cover setup, native checks, instrumental
+file/protocol generation, intact-weight Repair and one user-listened planner/vocal
+song for that target only. The remaining UI lifecycle and platform checks are
+not implied by these results.
 
 1. Install from GitHub after publication, or local import + Repair; confirm the
    exact configured `models_dir` in setup logs.
 2. Complete the real snapshot download and record successful setup/native checks.
 3. Generate the supplied 10-second instrumental smoke input with seed 42.
    Confirm audible music, the Modly audio preview and a valid stereo WAV.
-4. Test vocal mode with supplied lyrics, then enable the 1.7B planner on a
-   sufficiently provisioned target. Confirm no generation-time network access.
+4. Extend the vocal/planner acceptance beyond the published GB10 sample to more
+   seeds, lyrics and targets. Independently confirm no generation-time network
+   access; the accepted listening test did not measure network activity.
 5. Run Repair/update again; confirm **25 reused, 0 downloaded** for an unchanged
    intact weight lock. Interrupt a download and verify Repair resumes it.
 6. Repeat the runtime tests on physical Windows x64, Linux x64 CUDA and Linux
    ARM64 CUDA, for both Python ABIs before marking those lanes qualified.
 
-The repository contains no model weights. The results above record validation
-before publication. The included CI workflow covers the six CPU platform/ABI
+The repository contains no model weights. The results above distinguish initial
+prepublication checks from subsequent runtime and listening evidence. The included CI workflow covers the six CPU platform/ABI
 combinations; current remote results are available in
 [GitHub Actions](https://github.com/DrHepa/modly-acestep-15-extension/actions).

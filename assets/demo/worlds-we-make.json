@@ -1,0 +1,20 @@
+{
+  "seed": 1786369090,
+  "duration_seconds": 120.0,
+  "parameters": {
+    "caption": "Epic synth-pop song, 115 BPM, A minor, 4/4. The song starts immediately with the female lead singing the first verse: \"A blank screen waits, I draw a line\". Vocals enter on the opening beat, with drums, bass and synths accompanying the singer from the start.\n\nOne expressive female vocalist with warm, clear English diction. Shimmering analog synths, flowing arpeggios, pulsing bass, punchy electronic drums and cinematic pads. Hopeful, adventurous and melodic. Prominent lead vocals, anthemic choruses, consistent vocal tone and smooth transitions.\n\nFollow the supplied lyrics in order, beginning with Verse 1 and continuing through every section. Maintain a steady groove and finish with a short resolved ending.",
+    "lyrics": "[Verse 1]\nA blank screen waits, I draw a line\nOne little spark, a new design\nI place a node and watch it grow\nA world appears where colors flow\n\n[Chorus - anthemic]\nWith Modly, we can make it real\nA world to touch, a world to feel\nWe join the nodes and let them glow\nAnd watch a new horizon grow\n\n[Verse 2]\nI shape the hills, you paint the sky\nWe set a little sun up high\nI draw a road around the bend\nYou build a home for every friend\n\n[Bridge]\nConnect the dots and take my hand\nThere's room for all the worlds we planned\n\n[Final Chorus - anthemic]\nWith Modly, we can make it real\nA world to touch, a world to feel\nWe join the nodes and let them glow\nAnd watch a new horizon grow\n\n[Outro]\nOne little spark, a world awake\nWith Modly, these are worlds we make",
+    "instrumental": false,
+    "duration": 120,
+    "seed": 1786369090,
+    "bpm": 115,
+    "keyscale": "A minor",
+    "timesignature": "4",
+    "vocal_language": "en",
+    "thinking": true,
+    "lm_temperature": 0.85,
+    "device": "cuda",
+    "memory_mode": "offload"
+  },
+  "upstream_revision": "ca1e85fe9430179831e6bc6be790c332190a3866"
+}

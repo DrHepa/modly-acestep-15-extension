@@ -14,6 +14,29 @@ Target: upstream Modly **0.4.2**, audited at
 [`1476fd0`](https://github.com/lightningpixel/modly/tree/1476fd0b1c19c9ab177c1ca3ee4d1842119e9f65).
 See [VALIDATION.md](VALIDATION.md) for the exact evidence and untested targets.
 
+## Listen to a generated song
+
+**Worlds We Make** — a two-minute epic synth-pop song about creating worlds with
+Modly, with original English lyrics and a requested female lead vocal.
+
+https://github.com/user-attachments/assets/1a6ccf6c-75fa-4387-85ae-b88966342111
+
+Press play and use the speaker control to unmute if the preview starts silently.
+
+[Play / download the MP4 preview](assets/demo/worlds-we-make.mp4) ·
+[Prompt and generation parameters](assets/demo/worlds-we-make.json) ·
+[Lyrics](assets/demo/worlds-we-make-lyrics.txt)
+
+Generated locally on **NVIDIA GB10 / Linux ARM64 / Python 3.12**, with **120 s,
+115 BPM, A minor, 4/4, seed 1786369090, CUDA, CPU offload**, and the **1.7B planner
+On at temperature 0.85**. Turbo uses 8 steps. The user listened to this take and
+confirmed that it sings the full supplied lyrics without the earlier long intro.
+That is sample-specific listening acceptance, not a guarantee for every song.
+
+The **4.01 MB MP4** is a lossy AAC listening preview with a static cover. It
+contains the full generated 120 seconds, without rearrangement or normalization;
+the original float WAV is preserved locally and is not bundled in this repository.
+
 ## Installation
 
 ### Local package
@@ -90,9 +113,14 @@ in Settings before manual setup. For a relocated/custom Modly configuration,
    **Automatic device**, **Automatic offload**, seed **42**.
 3. Run the workflow. Setup/import/loading/generation errors appear in the logs;
    a successful run returns a WAV file to Modly's audio output.
-4. For vocals, switch Instrumental to Vocals / lyrics and supply lyrics with
-   `[Verse]` / `[Chorus]` tags. The current string editor can accept literal `\n`
-   separators. Enable the planner only when sufficient memory is available.
+4. For vocals, switch Instrumental to **Vocals / lyrics**. **Expand the Lyrics
+   field before pasting** the multiline lyrics, preserving `[Verse]` / `[Chorus]`
+   tags and line breaks. Expanding after a single-line paste does not restore lost
+   breaks; literal `\n` separators are also accepted.
+5. For a full vocal song, try **planner On** when sufficient memory is available.
+   In the demo comparison, this resolved omitted opening lyrics and a long intro
+   reported with planner Off. This is one user-verified result, not a universal
+   alignment guarantee; the extension default remains Off for the lighter smoke test.
 
 The planner generates music codes and can fill missing musical metadata. This
 adapter does not enable automatic lyric writing, caption rewriting, audio input,
@@ -148,7 +176,9 @@ completed runtime testing on every target. Linux x64 CPU imports, native
 operations, actual upstream orchestration around a controlled inference
 boundary, and WAV writing passed on Python 3.11 and 3.12. Linux ARM64 on NVIDIA
 GB10 with Python 3.12/cu130 also passed real setup, Repair and a 10-second
-instrumental generation through the actual processor. See VALIDATION.md.
+instrumental generation through the actual processor. A subsequent 120-second
+vocal song with the 1.7B planner enabled was generated in Modly and accepted by
+the user after listening. See VALIDATION.md for the scope of each check.
 
 Linux needs a distribution compatible with the selected manylinux wheels
 (glibc 2.28 or later). Windows may need the Microsoft Visual C++ runtime.
@@ -166,9 +196,11 @@ Setup tests native imports/kernels **before** starting the model download.
 
 ## Limitations
 
-- Real instrumental inference passed on GB10/Linux ARM64/Python 3.12; listening,
-  Modly UI end-to-end behavior, vocals and planner inference remain untested.
-  Other hardware/ABI targets still require real generation acceptance.
+- Real instrumental and planner-enabled vocal inference have been exercised on
+  GB10/Linux ARM64/Python 3.12. The vocal demo has user listening acceptance;
+  this does not qualify every lyric, duration, voice or musical style. Clean
+  Install from GitHub, comprehensive UI lifecycle/cancellation and other
+  hardware/ABI targets still require their own acceptance checks.
 - No macOS, Windows ARM64, ROCm, MPS, XPU, MLX, vLLM, FlashAttention or
   quantized-model lane is exposed by this release.
 - Processes load models anew for each run. The LM tokenizer can take 1–2 minutes
@@ -192,6 +224,7 @@ Setup tests native imports/kernels **before** starting the model download.
 | CUDA unavailable or unsupported driver | Update the driver or install an explicit CPU lane. Do not replace torch independently of torchaudio/torchvision. |
 | `nvidia-cusparselt-cu13 0.8.0 is not supported on this platform` on Linux ARM64 CUDA 13 | Update this extension and run Repair. The official aarch64 wheel has an incorrect internal SBSA tag. Setup validates its identity, ELF architecture and native load in the venv, then corrects only that known tag and its RECORD hash. `pip check` remains mandatory; other dependency/native errors still stop setup. |
 | CUDA out of memory | Disable the planner, reduce duration and use CPU offload. Close other GPU jobs. |
+| Missing opening lyrics / unexpectedly long instrumental intro | Check vocal mode and preserved lyric line breaks first. With enough memory, try planner On; the published demo used temperature 0.85. Prompt instructions alone do not guarantee lyric order. |
 | LoRA / Lightning / bitsandbytes warnings | These optional training packages are intentionally omitted; they are not needed by the exposed node. |
 | Long pause in loading/planning | Watch the live heartbeat and stage logs. First initialization is slower than inference. |
 | Setup failed | Read the final error and the preceding pip/native logs. It exits nonzero and does not report successful setup. |
