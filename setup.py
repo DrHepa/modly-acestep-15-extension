@@ -86,6 +86,7 @@ def setup(context):
         run([python, "-m", "pip", "install", "-r", ROOT / "requirements.txt", "-c", constraints], "Installing inference dependencies")
     finally:
         constraints.unlink(missing_ok=True)
+    run([python, "-m", "acestep_modly.native_metadata", "--flavor", lane["flavor"]], "Validating known native wheel metadata")
     run([python, "-m", "pip", "check"], "Checking dependency consistency")
     run([python, "-m", "acestep_modly.health", "--accelerator", lane["accelerator"]], "Checking real imports, kernels and WAV output before downloading weights")
     run([python, "-m", "acestep_modly.provision", "--models-root", models], "Provisioning/reusing the pinned model snapshot")

@@ -144,9 +144,11 @@ explicit platform lanes from upstream's dependency policy:
 
 Official wheels were confirmed for all six platform/Python combinations, in
 both CUDA and CPU variants. This is package availability, **not** a claim of
-completed Windows/ARM64/GPU runtime testing. Linux x64 CPU imports, native
+completed runtime testing on every target. Linux x64 CPU imports, native
 operations, actual upstream orchestration around a controlled inference
-boundary, and WAV writing passed on Python 3.11 and 3.12. See VALIDATION.md.
+boundary, and WAV writing passed on Python 3.11 and 3.12. Linux ARM64 on NVIDIA
+GB10 with Python 3.12/cu130 also passed real setup, Repair and a 10-second
+instrumental generation through the actual processor. See VALIDATION.md.
 
 Linux needs a distribution compatible with the selected manylinux wheels
 (glibc 2.28 or later). Windows may need the Microsoft Visual C++ runtime.
@@ -164,9 +166,9 @@ Setup tests native imports/kernels **before** starting the model download.
 
 ## Limitations
 
-- Full neural-model inference and generated-audio quality have not been run in
-  the development environment; no 10 GB weight download was performed there.
-  Real first-generation acceptance on each target remains required.
+- Real instrumental inference passed on GB10/Linux ARM64/Python 3.12; listening,
+  Modly UI end-to-end behavior, vocals and planner inference remain untested.
+  Other hardware/ABI targets still require real generation acceptance.
 - No macOS, Windows ARM64, ROCm, MPS, XPU, MLX, vLLM, FlashAttention or
   quantized-model lane is exposed by this release.
 - Processes load models anew for each run. The LM tokenizer can take 1–2 minutes
@@ -188,6 +190,7 @@ Setup tests native imports/kernels **before** starting the model download.
 | Interrupted download | Run Repair. Verified files are retained and `.part` files are resumed when possible. |
 | Missing/incomplete weights during generation | Run Repair; the processor intentionally refuses network fallback. |
 | CUDA unavailable or unsupported driver | Update the driver or install an explicit CPU lane. Do not replace torch independently of torchaudio/torchvision. |
+| `nvidia-cusparselt-cu13 0.8.0 is not supported on this platform` on Linux ARM64 CUDA 13 | Update this extension and run Repair. The official aarch64 wheel has an incorrect internal SBSA tag. Setup validates its identity, ELF architecture and native load in the venv, then corrects only that known tag and its RECORD hash. `pip check` remains mandatory; other dependency/native errors still stop setup. |
 | CUDA out of memory | Disable the planner, reduce duration and use CPU offload. Close other GPU jobs. |
 | LoRA / Lightning / bitsandbytes warnings | These optional training packages are intentionally omitted; they are not needed by the exposed node. |
 | Long pause in loading/planning | Watch the live heartbeat and stage logs. First initialization is slower than inference. |

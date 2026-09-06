@@ -18,8 +18,9 @@ It is not a claim that music generation has been qualified on every platform.
 
 The host was read directly, not inferred from another extension's manifest.
 DrHepa's Qwen3-TTS and Kokoro-ONNX process extensions were also inspected as
-comparators. No host files, existing extensions or public repositories were
-modified as part of this package.
+comparators. The initial package audit did not modify host files, existing
+extensions or public repositories. The runtime repair validation below used
+an updated copy of this extension in Modly's extensions directory.
 
 ## Host contract decisions
 
@@ -77,6 +78,59 @@ supports audio; old image/text/mesh-only defaults are not the live host schema.
 
 ## Platform evidence
 
+### Linux ARM64 cuSPARSELt setup regression
+
+The published `nvidia_cusparselt_cu13-0.8.0-py3-none-manylinux2014_aarch64.whl`
+contains the sole internal tag `py3-none-manylinux2014_sbsa`. Pip accepts the
+filename at install time but rejects this internal tag during `pip check`.
+The narrowly scoped repair runs under the extension venv on Linux aarch64 cu130
+only. It validates the distribution name/version, sole known tag, WHEEL/RECORD
+hash and size, ELF64 little-endian AArch64 shared-library header and actual
+native load before replacing the tag with `manylinux2014_aarch64` and updating
+RECORD. Unrelated pip failures are not filtered or suppressed.
+
+Regression evidence on Linux ARM64, system Python 3.12: the new test module was
+first run RED with the missing implementation, then all **7 regression tests
+passed**. Full default discovery ran **29 tests: 26 passed, 3 opt-in upstream
+tests skipped**. The existing local HTTP-resume test required host loopback
+access; the sandbox-only run failed on socket permissions, not an assertion.
+Compile checks and `git diff --check` also passed.
+
+The new tests cover non-target platform/lane no-ops, unknown identity/version/
+tags, invalid native headers, loader failure, RECORD corruption/duplicates,
+correct hashes and idempotency, recovery from an interrupted metadata pair
+update, target-venv invocation ordering, and fatal unrelated pip conflicts.
+They use synthetic package fixtures and a mocked native loader: this is
+regression proof, **not** successful Modly setup, GPU inference or audio-quality
+proof. The separate real runtime evidence follows.
+
+### Real GB10 runtime acceptance — 2026-09-06
+
+Tested the copied extension in Modly's runtime directory using its own CPython
+3.12 venv on Linux ARM64/NVIDIA GB10, with torch **2.10.0+cu130**:
+
+| Check | Measured result |
+| --- | --- |
+| Initial setup | Exit 0; **25 downloaded, 0 reused**; real imports, CUDA kernels and stereo WAV32 health passed |
+| Strict `pip check` | Exit 0; no dependency conflicts suppressed |
+| Actual processor inference | 10 seconds, seed 42, instrumental, planner Off; CUDA BF16, SDPA, Turbo 8 steps; Automatic memory mode selected CPU offload |
+| Generated WAV | **480,000 frames, 48,000 Hz, stereo, FLOAT**, 10.0 seconds; all samples finite; peak **0.8912509**, RMS **0.0749941** |
+| Process protocol | **222 NDJSON messages**, exactly one terminal `done`; monotonic progress ending at 100 |
+| Repair | Exit 0; **25 reused, 0 downloaded**; unchanged weight modification times |
+| Post-Repair integrity | Corrected aarch64 WHEEL tag; RECORD verification had zero errors; copied source hashes unchanged |
+
+The input was `Warm acoustic jazz, brushed drums, mellow piano, relaxed evening
+atmosphere`. This run used real local checkpoints and neural inference, not the
+controlled model boundary used in the unit tests. Local setup/Repair logs and
+`inference-evidence.json` / `final-runtime-evidence.json` record these results;
+the generated WAV SHA-256 is
+`f84fb60da989884c640acd26cc29bd5a76749163373bb152573ec549b2645c71`.
+**UNTESTED:** listening/audio quality, Modly UI installation/workflow preview
+end-to-end, vocals and planner inference. This evidence does not qualify other
+hardware or Python 3.11 ARM64.
+
+### Cross-platform availability and remaining qualification
+
 `scripts/check_wheels.py` queried official PyTorch indices. All **36 checks**
 passed: three native packages × three platform targets × two Python ABIs ×
 two CPU/CUDA variants. Direct requirement releases were also checked against
@@ -86,7 +140,7 @@ PyPI metadata for Python compatibility and platform/pure-Python wheels.
 | --- | --- | --- |
 | Windows x64, Python 3.11 / 3.12 | torch 2.7.1, torchvision 0.22.1, cu128 or CPU | Not executed on a Windows host |
 | Linux x64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu128 or CPU | CPU dependency/kernel/audio checks executed; CUDA not executed |
-| Linux ARM64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu130 or CPU | Not executed on an ARM64 host |
+| Linux ARM64, Python 3.11 / 3.12 | torch 2.10.0, torchvision 0.25.0, cu130 or CPU | GB10/Python 3.12 cu130 setup, Repair and real instrumental inference passed; Python 3.11 and CPU runtime untested |
 
 An independent fresh-context review caught the capped ARM64 CUDA report,
 BF16-emulation detection on older GPUs and an unproven storage-path fallback.
@@ -95,6 +149,10 @@ model paths, API calls and IPC were reviewed; this does not replace hardware
 qualification.
 
 ## Required real acceptance before declaring full platform support
+
+The GB10/Python 3.12 run above satisfies setup, native checks, instrumental
+file/protocol generation and intact-weight Repair for that target only. The
+remaining UI, listening, mode and platform checks are not implied by it.
 
 1. Install from GitHub after publication, or local import + Repair; confirm the
    exact configured `models_dir` in setup logs.
