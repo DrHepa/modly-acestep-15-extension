@@ -29,8 +29,7 @@ Press play and use the speaker control to unmute if the preview starts silently.
 
 Generated locally on **NVIDIA GB10 / Linux ARM64 / Python 3.12**, with **120 s,
 115 BPM, A minor, 4/4, seed 1786369090, CUDA, CPU offload**, and the **1.7B planner
-On at temperature 0.85**. Turbo uses 8 steps. The user listened to this take and
-confirmed that it sings the full supplied lyrics without the earlier long intro.
+On at temperature 0.85**. Turbo uses 8 steps. 
 That is sample-specific listening acceptance, not a guarantee for every song.
 
 The **4.01 MB MP4** is a lossy AAC listening preview with a static cover. It
