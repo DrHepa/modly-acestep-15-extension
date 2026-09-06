@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/ace-step/ACE-Step-1.5",
+  "revision": "ca1e85fe9430179831e6bc6be790c332190a3866",
+  "archive": "ace-step-runtime.tar.gz",
+  "sha256": "db885d20e183b5549d90219a9a7de34f151c9325b0da632950b539882a443b39",
+  "contents": ["acestep", "LICENSE"],
+  "creation": "git archive --format=tar.gz ca1e85fe9430179831e6bc6be790c332190a3866 acestep LICENSE"
+}

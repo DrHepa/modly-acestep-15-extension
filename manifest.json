@@ -1,0 +1,33 @@
+{
+  "id": "modly-acestep-15-extension",
+  "name": "ACE-Step 1.5 Music",
+  "type": "process",
+  "version": "0.1.0",
+  "author": "DrHepa",
+  "description": "Local text-to-music with ACE-Step 1.5 Turbo, optional lyrics and 5Hz music planning. Setup downloads persistent weights once.",
+  "source": "https://github.com/DrHepa/modly-acestep-15-extension",
+  "entry": "processor.py",
+  "nodes": [
+    {
+      "id": "text-to-music",
+      "name": "ACE-Step Text to Music",
+      "input": "text",
+      "output": "audio",
+      "params_schema": [
+        {"id": "caption", "label": "Music description (fallback)", "type": "string", "default": "", "tooltip": "Connect a Text node with the music description, or enter it here. Connected text takes priority."},
+        {"id": "lyrics", "label": "Lyrics", "type": "string", "default": "", "tooltip": "Optional lyrics with [Verse]/[Chorus] tags. Literal \\n is accepted as a line break. Ignored in instrumental mode."},
+        {"id": "instrumental", "label": "Instrumental", "type": "select", "default": "true", "options": [{"value": "true", "label": "Instrumental"}, {"value": "false", "label": "Vocals / lyrics"}]},
+        {"id": "duration", "label": "Duration (seconds)", "type": "int", "default": 30, "min": 10, "max": 600, "step": 1, "tooltip": "Start with 10-30 seconds. Long tracks need substantially more RAM/VRAM; the host GPU limit is checked before generation."},
+        {"id": "seed", "label": "Seed (-1 = random)", "type": "int", "default": -1, "min": -1, "max": 4294967295, "step": 1},
+        {"id": "bpm", "label": "BPM (0 = automatic)", "type": "int", "default": 0, "min": 0, "max": 300, "step": 1, "tooltip": "Use 0 or 30-300. Values 1-29 are rejected."},
+        {"id": "keyscale", "label": "Key / scale", "type": "string", "default": "", "tooltip": "Optional, for example C major or A minor."},
+        {"id": "timesignature", "label": "Time signature", "type": "select", "default": "", "options": [{"value": "", "label": "Automatic"}, {"value": "2", "label": "2/4"}, {"value": "3", "label": "3/4"}, {"value": "4", "label": "4/4"}, {"value": "6", "label": "6/8"}]},
+        {"id": "vocal_language", "label": "Vocal language", "type": "string", "default": "unknown", "tooltip": "Upstream language code, for example en, es, ja or unknown."},
+        {"id": "thinking", "label": "5Hz music planner (1.7B)", "type": "select", "default": "false", "options": [{"value": "false", "label": "Off - direct Turbo"}, {"value": "true", "label": "On - LM + Turbo"}], "tooltip": "Uses the bundled local 1.7B LM for music codes and missing metadata. More memory/startup time; it does not write lyrics automatically."},
+        {"id": "lm_temperature", "label": "Planner temperature", "type": "float", "default": 0.85, "min": 0.1, "max": 2.0, "step": 0.05, "show_if": {"thinking": "true"}},
+        {"id": "device", "label": "Device", "type": "select", "default": "auto", "options": [{"value": "auto", "label": "Automatic (CUDA if available)"}, {"value": "cuda", "label": "CUDA"}, {"value": "cpu", "label": "CPU (slow)"}]},
+        {"id": "memory_mode", "label": "Memory mode", "type": "select", "default": "auto", "options": [{"value": "auto", "label": "Automatic offload"}, {"value": "offload", "label": "CPU offload"}, {"value": "resident", "label": "Keep models on device"}], "tooltip": "Offload reduces VRAM use at the cost of speed. This release does not quantize weights."}
+      ]
+    }
+  ]
+}

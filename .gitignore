@@ -1,0 +1,9 @@
+venv/
+venv-incompatible-*/
+vendor/ace-step/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+*.part
+test-results/
